@@ -6,7 +6,7 @@ import { MockFlightsService } from './mocks/service.js';
 import { createMockService } from './mocks/state.js';
 import type { FlightDocument } from './schema.js';
 import { FlightsService } from './service.js';
-import { createService } from './state.js';
+import { createFlightsService } from './state.js';
 
 describe('FlightsService Contract', () => {
   const flightId = '6842ee23feb532c8cd74fddb';
@@ -43,7 +43,7 @@ describe('FlightsService Contract', () => {
     });
 
     it('should retrieve all flights', async () => {
-      const realService = createService(db);
+      const realService = createFlightsService(db);
       const mockService = createMockService(flights);
 
       const realFlights = await realService.retrieveAllFlights();
@@ -81,7 +81,7 @@ describe('FlightsService Contract', () => {
     });
 
     it('should find a flight by id', async () => {
-      const realService = createService(db);
+      const realService = createFlightsService(db);
       const mockService = createMockService(flights);
 
       const realFlight = await realService.retrieveFlight(flightId);
@@ -91,7 +91,7 @@ describe('FlightsService Contract', () => {
     });
 
     it('should throw a NotFoundError', async () => {
-      const realService = createService(db);
+      const realService = createFlightsService(db);
       const mockService = createMockService(flights);
 
       const wrongFlightId = '6842ee23feb532c8cd74fdda';
@@ -105,7 +105,7 @@ describe('FlightsService Contract', () => {
     });
 
     it('should throw an AppError', async () => {
-      const realService = createService(db);
+      const realService = createFlightsService(db);
       const mockService = createMockService(flights);
 
       const nonHexFlightId = '6842ee23feb532c8cd74fzzz';

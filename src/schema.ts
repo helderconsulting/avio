@@ -7,4 +7,4 @@ export const processEnv = z.object({
     .startsWith('mongodb://', { message: 'Must start with mongodb://' }),
 });
 
-export type ProcessEnv = z.infer<typeof processEnv>;
+export type EnvironmentVariables = z.infer<typeof processEnv>;

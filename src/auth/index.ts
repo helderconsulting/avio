@@ -18,9 +18,9 @@ const validateAccount = zValidator('json', account, (result) => {
   }
 });
 
-const createRouter = (state: MiddlewareHandler<AuthContext>) => {
+const createRouter = (authState: MiddlewareHandler<AuthContext>) => {
   const router = new Hono<AuthContext>();
-  router.use(state);
+  router.use(authState);
 
   router.post('/signup', validateAccount, async (c) => {
     const account = c.req.valid('json');

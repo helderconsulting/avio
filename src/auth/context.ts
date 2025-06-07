@@ -13,7 +13,6 @@ export interface AuthServiceInterface {
 }
 
 export interface AuthVariables extends AppVariables {
-  user: User;
   authService: AuthServiceInterface;
 }
 

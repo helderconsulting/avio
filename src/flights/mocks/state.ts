@@ -21,6 +21,6 @@ export const createMockFlightsState =
   (flights: WithId<FlightDocument>[]): MiddlewareHandler<FlightsContext> =>
   async (c, next) => {
     const mockService = createMockService(flights);
-    c.set('service', mockService);
+    c.set('flightsService', mockService);
     await next();
   };

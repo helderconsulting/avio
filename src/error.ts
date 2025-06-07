@@ -13,7 +13,6 @@ export class AppError extends Error {
   }
 
   toReponse(c: Context) {
-    console.log(this.message);
     return c.text(this.message, this.statusCode);
   }
 }

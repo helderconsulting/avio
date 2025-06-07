@@ -4,7 +4,7 @@ import type { FlightsContext } from './context.js';
 import type { FlightDocument } from './schema.js';
 import { FlightsService } from './service.js';
 
-export const createService = (db: Db) => {
+export const createFlightsService = (db: Db) => {
   const collection = db.collection<FlightDocument>('flights');
   return new FlightsService(collection);
 };
@@ -14,8 +14,8 @@ export const createFlightsState: MiddlewareHandler<FlightsContext> = async (
   next
 ) => {
   const db = c.get('db');
-  const service = createService(db);
-  c.set('flightsService', service);
+  const flightsService = createFlightsService(db);
+  c.set('flightsService', flightsService);
 
   await next();
 };

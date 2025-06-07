@@ -1,4 +1,5 @@
 import type { MiddlewareHandler } from 'hono';
+import { createAuth } from '../lib/auth.js';
 import type { AuthContext } from './context.js';
 import { AuthService } from './service.js';
 
@@ -6,9 +7,13 @@ export const createAuthState: MiddlewareHandler<AuthContext> = async (
   c,
   next
 ) => {
-  const auth = c.get('auth');
-  const service = new AuthService(auth);
-  c.set('authService', service);
+  const db = c.get('db');
+  const auth = createAuth(db);
+  c.set('auth', auth);
+
+  const authService = new AuthService(auth);
+  c.set('authService', authService);
+
   await next();
 };
 
