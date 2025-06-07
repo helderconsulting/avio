@@ -1,24 +1,24 @@
 import type { MiddlewareHandler } from 'hono';
-import type { ObjectId, WithId } from 'mongodb';
+import type { WithId } from 'mongodb';
 import type { FlightsContext } from '../context.js';
-import type { FlightDocument } from '../schema.js';
+import type { FlightRequest } from '../schema.js';
 import { MockFlightsService } from './service.js';
 
-export const createCollection = (flights: WithId<FlightDocument>[]) => {
-  const collection = new Map<ObjectId, WithId<FlightDocument>>();
+export const createCollection = (flights: WithId<FlightRequest>[]) => {
+  const collection = new Map<string, WithId<FlightRequest>>();
   flights.forEach((flight) => {
-    collection.set(flight._id, flight);
+    collection.set(flight._id.toHexString(), flight);
   });
   return collection;
 };
 
-export const createMockService = (flights: WithId<FlightDocument>[]) => {
+export const createMockService = (flights: WithId<FlightRequest>[]) => {
   const collection = createCollection(flights);
   return new MockFlightsService(collection);
 };
 
 export const createMockFlightsState =
-  (flights: WithId<FlightDocument>[]): MiddlewareHandler<FlightsContext> =>
+  (flights: WithId<FlightRequest>[]): MiddlewareHandler<FlightsContext> =>
   async (c, next) => {
     const mockService = createMockService(flights);
     c.set('flightsService', mockService);

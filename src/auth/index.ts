@@ -24,15 +24,19 @@ const createRouter = (authState: MiddlewareHandler<AuthContext>) => {
 
   router.post('/signup', validateAccount, async (c) => {
     const account = c.req.valid('json');
+
     const service = c.get('authService');
     const user = await service.signup(account);
+
     return c.json(user, 201);
   });
 
   router.post('/', validateCredentials, (c) => {
     const credentials = c.req.valid('json');
+
     const service = c.get('authService');
     const token = service.signin(credentials);
+
     return c.json(token, 200);
   });
 

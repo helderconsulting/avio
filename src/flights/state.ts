@@ -1,11 +1,11 @@
 import type { MiddlewareHandler } from 'hono';
 import type { Db } from 'mongodb';
 import type { FlightsContext } from './context.js';
-import type { FlightDocument } from './schema.js';
+import type { FlightRequest } from './schema.js';
 import { FlightsService } from './service.js';
 
 export const createFlightsService = (db: Db) => {
-  const collection = db.collection<FlightDocument>('flights');
+  const collection = db.collection<FlightRequest>('flights');
   return new FlightsService(collection);
 };
 

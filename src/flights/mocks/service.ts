@@ -3,86 +3,90 @@ import type { WithId } from 'mongodb';
 import { AppError } from '../../error.js';
 import type { FlightsServiceInterface } from '../context.js';
 import { NotFoundError } from '../error.js';
-import type { FlightDocument } from '../schema.js';
+import type { FlightRequest, FlightResponse } from '../schema.js';
+import { toFlightReponse } from '../schema.js';
 
 export class MockFlightsService implements FlightsServiceInterface {
-  constructor(private collection: Map<ObjectId, WithId<FlightDocument>>) {}
+  constructor(private collection: Map<string, WithId<FlightRequest>>) {}
 
-  retrieveAllFlights(): Promise<FlightDocument[]> {
+  retrieveAllFlights(): Promise<FlightResponse[]> {
     try {
       const documents = Array.from(this.collection.values());
-      return Promise.resolve(documents);
+      return Promise.resolve(documents.map(toFlightReponse));
     } catch {
-      throw new AppError();
+      return Promise.reject(new AppError());
     }
   }
 
-  retrieveFlight(id: string): Promise<FlightDocument> {
+  retrieveFlight(id: string): Promise<FlightResponse> {
     try {
-      const objectId = new ObjectId(id);
-      if (!this.collection.has(objectId)) {
+      if (!this.collection.has(id)) {
         throw new NotFoundError();
       }
 
-      const document = this.collection.get(objectId);
+      const document = this.collection.get(id);
       if (!document) {
         throw new NotFoundError();
       }
 
-      return Promise.resolve(document);
+      return Promise.resolve(toFlightReponse(document));
     } catch (error) {
       if (error instanceof NotFoundError) {
-        throw error;
+        return Promise.reject(error);
       }
-      throw new AppError();
+      return Promise.reject(new AppError());
     }
   }
 
-  async updateFlight(
-    id: string,
-    document: FlightDocument
-  ): Promise<FlightDocument | null> {
-    const objectId = new ObjectId(id);
+  updateFlight(id: string, document: FlightRequest): Promise<FlightResponse> {
+    try {
+      const objectId = new ObjectId(id);
 
-    if (!this.collection.has(objectId)) {
-      return null;
+      if (!this.collection.has(id)) {
+        throw new NotFoundError();
+      }
+
+      const original = this.collection.get(id);
+      this.collection.set(id, {
+        ...original,
+        ...document,
+        _id: objectId,
+      });
+
+      const result = this.collection.get(id);
+      if (!result) {
+        throw new NotFoundError();
+      }
+
+      return Promise.resolve(toFlightReponse(result));
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return Promise.reject(error);
+      }
+      return Promise.reject(new AppError());
     }
-
-    const original = this.collection.get(objectId);
-    this.collection.set(objectId, {
-      ...original,
-      ...document,
-      _id: objectId,
-    });
-
-    const result = this.collection.get(objectId);
-    if (!result) {
-      return null;
-    }
-
-    return Promise.resolve(result);
   }
 
   deleteFlight(id: string): Promise<void> {
-    const objectId = new ObjectId(id);
+    try {
+      if (!this.collection.has(id)) {
+        throw new NotFoundError();
+      }
 
-    if (this.collection.has(objectId)) {
-      this.collection.delete(objectId);
+      this.collection.delete(id);
+
+      return Promise.resolve();
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return Promise.reject(error);
+      }
+      return Promise.reject(new AppError());
     }
-
-    return Promise.resolve();
   }
 
-  createFlight(document: FlightDocument): Promise<WithId<FlightDocument>> {
-    const objectId = new ObjectId();
+  createFlight(document: WithId<FlightRequest>): Promise<FlightResponse> {
+    this.collection.set(document._id.toHexString(), document);
 
-    const documentWithId = {
-      ...document,
-      _id: objectId,
-    };
-
-    this.collection.set(objectId, documentWithId);
-
-    return Promise.resolve(documentWithId);
+    return Promise.resolve(toFlightReponse(document));
   }
 }

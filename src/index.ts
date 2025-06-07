@@ -8,11 +8,11 @@ import type { AuthContext } from './auth/context.js';
 import { auth } from './auth/index.js';
 import { createAuthState } from './auth/state.js';
 import type { AppContext } from './context.js';
-import { AppError } from './error.js';
 import { flights } from './flights/index.js';
+import { handleError } from './lib/error.js';
 import { createAppState } from './state.js';
 
-const createRouter = (
+export const createRouter = (
   appState: MiddlewareHandler<AppContext>,
   authState: MiddlewareHandler<AuthContext>
 ) => {
@@ -22,13 +22,7 @@ const createRouter = (
   router.use(appState);
   router.use(authState);
 
-  router.onError((err, c) => {
-    console.log(err);
-    if (err instanceof AppError) {
-      return err.toReponse(c);
-    }
-    return c.text('Unhandled error', 500);
-  });
+  router.onError(handleError('root'));
 
   router.get('/docs', serveStatic({ path: './docs/open-api.yaml' }));
   router.get('/', swaggerUI({ url: '/docs' }));

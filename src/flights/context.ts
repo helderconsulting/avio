@@ -1,16 +1,12 @@
-import type { WithId } from 'mongodb';
 import type { AppVariables } from '../context.js';
-import type { FlightDocument } from './schema.js';
+import type { FlightRequest, FlightResponse } from './schema.js';
 
 export interface FlightsServiceInterface {
-  retrieveAllFlights(): Promise<FlightDocument[]>;
-  retrieveFlight(id: string): Promise<FlightDocument>;
-  updateFlight(
-    id: string,
-    document: FlightDocument
-  ): Promise<FlightDocument | null>;
+  retrieveAllFlights(): Promise<FlightResponse[]>;
+  retrieveFlight(id: string): Promise<FlightResponse>;
+  updateFlight(id: string, document: FlightRequest): Promise<FlightResponse>;
   deleteFlight(id: string): Promise<void>;
-  createFlight(document: FlightDocument): Promise<WithId<FlightDocument>>;
+  createFlight(document: FlightRequest): Promise<FlightResponse>;
 }
 
 export interface FlightsVariables extends AppVariables {

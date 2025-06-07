@@ -1,0 +1,59 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Flights Endpoint > GET /flights > should return a list of flights 1`] = `
+[
+  {
+    "aircraft": "CSTRC",
+    "departure": "LPPD",
+    "destination": "LPLA",
+    "flightNumber": "AVIO205",
+    "id": "6841cade4cace03b8f75235b",
+    "schedule": {
+      "sta": "2024-09-30T23:00:00.000Z",
+      "std": "2024-09-30T22:00:00.000Z",
+    },
+  },
+]
+`;
+
+exports[`Flights Endpoint > GET /flights/:flightId > should return a flight by id 1`] = `
+{
+  "aircraft": "CSTRC",
+  "departure": "LPPD",
+  "destination": "LPLA",
+  "flightNumber": "AVIO205",
+  "id": "6841cade4cace03b8f75235b",
+  "schedule": {
+    "sta": "2024-09-30T23:00:00.000Z",
+    "std": "2024-09-30T22:00:00.000Z",
+  },
+}
+`;
+
+exports[`Flights Endpoint > PATCH /flights/:flightId > should update a flight 1`] = `
+{
+  "aircraft": "CSTRC",
+  "departure": "LPPD",
+  "destination": "LPLA",
+  "flightNumber": "AVIO205",
+  "id": "6841cade4cace03b8f75235b",
+  "schedule": {
+    "sta": "2025-06-05T22:00:00.000Z",
+    "std": "2025-06-05T22:00:00.000Z",
+  },
+}
+`;
+
+exports[`Flights Endpoint > POST /flights > should create a flight with valid data 1`] = `
+{
+  "aircraft": "CSTRC",
+  "departure": "LPPD",
+  "destination": "LPLA",
+  "flightNumber": "AVIO205",
+  "id": "6841cade4cace03b8f75235b",
+  "schedule": {
+    "sta": "2025-06-05T22:00:00.000Z",
+    "std": "2025-06-05T22:00:00.000Z",
+  },
+}
+`;

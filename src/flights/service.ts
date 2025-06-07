@@ -3,10 +3,11 @@ import type { Collection } from 'mongodb';
 import { AppError } from '../error.js';
 import type { FlightsServiceInterface } from './context.js';
 import { NotFoundError } from './error.js';
-import type { FlightDocument } from './schema.js';
+import { toFlightReponse } from './schema.js';
+import type { FlightRequest } from './schema.js';
 
 export class FlightsService implements FlightsServiceInterface {
-  constructor(private collection: Collection<FlightDocument>) {}
+  constructor(private collection: Collection<FlightRequest>) {}
 
   async retrieveAllFlights() {
     try {
@@ -14,7 +15,7 @@ export class FlightsService implements FlightsServiceInterface {
 
       const flights = await cursor.toArray();
 
-      return flights;
+      return flights.map(toFlightReponse);
     } catch (error) {
       console.error(error);
       throw new AppError();
@@ -23,15 +24,15 @@ export class FlightsService implements FlightsServiceInterface {
 
   async retrieveFlight(id: string) {
     try {
-      const flight = await this.collection.findOne({
+      const found = await this.collection.findOne({
         _id: new ObjectId(id),
       });
 
-      if (!flight) {
+      if (!found) {
         throw new NotFoundError();
       }
 
-      return flight;
+      return toFlightReponse(found);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw error;
@@ -41,19 +42,19 @@ export class FlightsService implements FlightsServiceInterface {
     }
   }
 
-  async updateFlight(id: string, document: FlightDocument) {
+  async updateFlight(id: string, document: FlightRequest) {
     try {
       const update = await this.collection.findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: document },
-        { returnDocument: 'after' }
+        { returnDocument: 'after', projection: { _id: 0 } }
       );
 
       if (!update) {
         throw new NotFoundError();
       }
 
-      return update;
+      return toFlightReponse(update);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw error;
@@ -90,7 +91,7 @@ export class FlightsService implements FlightsServiceInterface {
     }
   }
 
-  async createFlight(document: FlightDocument) {
+  async createFlight(document: FlightRequest) {
     try {
       const inserted = await this.collection.insertOne(document);
 
@@ -98,7 +99,7 @@ export class FlightsService implements FlightsServiceInterface {
         throw new AppError();
       }
 
-      return { ...document, _id: inserted.insertedId };
+      return { ...document, id: inserted.insertedId.toHexString() };
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

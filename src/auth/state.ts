@@ -9,7 +9,6 @@ export const createAuthState: MiddlewareHandler<AuthContext> = async (
 ) => {
   const db = c.get('db');
   const auth = createAuth(db);
-  c.set('auth', auth);
 
   const authService = new AuthService(auth);
   c.set('authService', authService);

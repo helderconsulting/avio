@@ -24,6 +24,7 @@ export class AuthService implements AuthServiceInterface {
       if (error instanceof UnauthorizedError) {
         throw error;
       }
+      console.error(error);
       throw new AppError();
     }
   }
@@ -43,10 +44,10 @@ export class AuthService implements AuthServiceInterface {
 
       return { token: result.token };
     } catch (error) {
-      console.error(error);
       if (error instanceof UnauthorizedError) {
         throw error;
       }
+      console.error(error);
       throw new AppError();
     }
   }

@@ -1,3 +1,4 @@
+import type { WithId } from 'mongodb';
 import z from 'zod';
 
 const schedule = z.object({
@@ -9,7 +10,7 @@ const schedule = z.object({
     .datetime(),
 });
 
-export const flight = z
+export const flightRequest = z
   .object({
     aircraft: z
       .string({
@@ -40,5 +41,15 @@ export const flight = z
   .strict();
 
 export const param = z.object({ flightId: z.string().length(24) });
+export const flightResponse = flightRequest.extend({ id: z.string() });
 
-export type FlightDocument = z.infer<typeof flight>;
+export type FlightRequest = z.infer<typeof flightRequest>;
+export type FlightResponse = z.infer<typeof flightResponse>;
+
+export const toFlightReponse = ({
+  _id,
+  ...flight
+}: WithId<FlightRequest>): FlightResponse => ({
+  ...flight,
+  id: _id.toHexString(),
+});
