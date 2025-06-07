@@ -1,0 +1,306 @@
+openapi: 3.0.3
+info:
+  title: Aviobook Code Challenge
+  version: 1.0.0
+tags:
+  - name: Authentication
+  - name: Flights
+paths:
+  /auth/signup:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Authentication
+      summary: Sign up for a new account
+      operationId: signUp
+      requestBody:
+        $ref: '#/components/requestBodies/Signup'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Invalid payload
+        '422':
+          description: User already exists
+        '500':
+          description: Something went wrong
+  /auth:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Authentication
+      summary: Create a token for a user
+      operationId: createToken
+      requestBody:
+        $ref: '#/components/requestBodies/Authentication'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Invalid payload
+        '500':
+          description: Something went wrong
+  /flights:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Flights
+      summary: Retrieve all flights
+      operationId: retrieveAllFlights
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Flight'
+                    - type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Internal Identifier for the flight
+        '401':
+          description: User is not authenticated
+        '500':
+          description: Something went wrong
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Flights
+      summary: Create a flight
+      operationId: createFlight
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flight'
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Flight'
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Internal Identifier for the flight
+        '400':
+          description: Invalid payload
+        '401':
+          description: User is not authenticated
+        '500':
+          description: Something went wrong
+  /flights/{flightId}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Flights
+      summary: Retrieve a flights by id
+      operationId: retrieveFlight
+      parameters:
+        - in: path
+          name: flightId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Flight'
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Internal Identifier for the flight
+        '401':
+          description: User is not authenticated
+        '404':
+          description: Flight not found
+        '500':
+          description: Something went wrong
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - Flights
+      summary: Update a flight
+      operationId: updateFlight
+      parameters:
+        - in: path
+          name: flightId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flight'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Flight'
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Internal Identifier for the flight
+        '400':
+          description: Invalid payload
+        '401':
+          description: User is not authenticated
+        '404':
+          description: Flight not found
+        '500':
+          description: Something went wrong
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Flights
+      summary: Remove a flights by id
+      operationId: deleteFlight
+      parameters:
+        - in: path
+          name: flightId
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: The flight was deleted successfully.
+        '401':
+          description: User is not authenticated
+        '404':
+          description: Flight not found
+        '500':
+          description: Something went wrong
+
+components:
+  schemas:
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        emailVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Flight:
+      type: object
+      properties:
+        aircraft:
+          type: string
+          description: A code describing the aircraft assigned to the flight
+          minLength: 1
+          maxLength: 10
+          example: CSTRC
+        flightNumber:
+          type: string
+          description: A code that identifies the flight
+          minLength: 1
+          maxLength: 10
+          example: AVIO201
+        schedule:
+          type: object
+          properties:
+            std:
+              type: string
+              description: The scheduled time of departure, ISO 8601 format
+              format: date-time
+            sta:
+              type: string
+              description: The scheduled time of arrival, ISO 8601 format
+              format: date-time
+        departure:
+          type: string
+          description: Identifier for the departure airport
+          minLength: 4
+          maxLength: 4
+          example: LPPD
+        destination:
+          type: string
+          description: Identifier for the destination airport
+          minLength: 4
+          maxLength: 4
+          example: LPLA
+  requestBodies:
+    Signup:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: 'test user'
+              email:
+                type: string
+                example: 'test@mail.com'
+              username:
+                type: string
+                example: 'test_user'
+              password:
+                type: string
+                example: 'thisIsAGoodPassword'
+    Authentication:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
