@@ -1,4 +1,4 @@
-import type { ObjectId, WithId } from 'mongodb';
+import type { WithId } from 'mongodb';
 import type { AppVariables } from '../context.js';
 import type { FlightDocument } from './schema.js';
 
@@ -14,7 +14,9 @@ export interface FlightsServiceInterface {
 }
 
 export interface FlightsVariables extends AppVariables {
-  service: FlightsServiceInterface;
+  flightsService: FlightsServiceInterface;
 }
 
-export type FlightsContext = { Variables: FlightsVariables };
+export interface FlightsContext {
+  Variables: FlightsVariables;
+}

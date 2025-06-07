@@ -1,13 +1,14 @@
-import { Collection, Db, MongoClient, ObjectId, type WithId } from 'mongodb';
-import type { FlightDocument } from './schema.js';
-import { createMockService } from './mocks/state.js';
-import { createService } from './state.js';
+import { MongoClient, ObjectId } from 'mongodb';
+import type { Collection, Db, WithId } from 'mongodb';
 import { AppError } from '../error.js';
-import { FlightsService } from './service.js';
-import { MockFlightsService } from './mocks/service.js';
 import { NotFoundError } from './error.js';
+import { MockFlightsService } from './mocks/service.js';
+import { createMockService } from './mocks/state.js';
+import type { FlightDocument } from './schema.js';
+import { FlightsService } from './service.js';
+import { createService } from './state.js';
 
-describe('FlightsService Contract', async () => {
+describe('FlightsService Contract', () => {
   const flightId = '6842ee23feb532c8cd74fddb';
   const flights: WithId<FlightDocument>[] = [
     {
@@ -34,7 +35,7 @@ describe('FlightsService Contract', async () => {
 
       collection = db.collection('flights');
 
-      collection.insertMany(flights);
+      await collection.insertMany(flights);
     });
 
     afterEach(async () => {
@@ -52,8 +53,12 @@ describe('FlightsService Contract', async () => {
     });
 
     it('should throw an AppError', async () => {
-      const realService = new FlightsService(undefined as any);
-      const mockService = new MockFlightsService(undefined as any);
+      const realService = new FlightsService(
+        undefined as unknown as Collection<FlightDocument>
+      );
+      const mockService = new MockFlightsService(
+        undefined as unknown as Map<ObjectId, WithId<FlightDocument>>
+      );
 
       await expect(realService.retrieveAllFlights()).rejects.toThrow(AppError);
       await expect(mockService.retrieveAllFlights()).rejects.toThrow(AppError);
@@ -68,7 +73,7 @@ describe('FlightsService Contract', async () => {
 
       collection = db.collection('flights');
 
-      collection.insertMany(flights);
+      await collection.insertMany(flights);
     });
 
     afterEach(async () => {

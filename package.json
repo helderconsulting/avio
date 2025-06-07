@@ -5,6 +5,7 @@
     "dev": "tsx watch --env-file=.env src/index.ts ",
     "build": "tsc",
     "test": "vitest",
+    "lint": "eslint",
     "start": "node dist/index.js"
   },
   "dependencies": {
@@ -17,9 +18,12 @@
     "zod": "^3.25.51"
   },
   "devDependencies": {
+    "@hono/eslint-config": "^2.0.1",
     "@types/node": "^20.11.17",
+    "eslint": "^9.28.0",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3",
+    "typescript-eslint": "^8.33.1",
     "vitest": "^3.2.2"
   }
 }

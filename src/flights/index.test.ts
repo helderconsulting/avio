@@ -1,10 +1,11 @@
 import type { Hono } from 'hono';
-import { createRouter } from './index.js';
+import { ObjectId } from 'mongodb';
+import type { WithId } from 'mongodb';
+import { createMockAuthState } from '../auth/mocks/state.js';
+import type { FlightsContext } from './context.js';
 import { createMockFlightsState } from './mocks/state.js';
 import type { FlightDocument } from './schema.js';
-import type { FlightsContext } from './context.js';
-import { ObjectId, type WithId } from 'mongodb';
-import { createMockAuthState } from '../auth/mocks/state.js';
+import { createRouter } from './index.js';
 
 describe('Flights Endpoint', () => {
   describe('GET /flights', () => {
@@ -32,7 +33,7 @@ describe('Flights Endpoint', () => {
     test('should return a list of flights when authenticated', async () => {
       const result = await flights.request('/');
 
-      const json: FlightDocument[] = await result.json();
+      const json = (await result.json()) as WithId<FlightDocument>[];
 
       expect(json.length).toBe(1);
       expect(json.at(0)).toHaveProperty('_id');
@@ -73,7 +74,7 @@ describe('Flights Endpoint', () => {
         headers: new Headers({ 'Content-Type': 'application/json' }),
       });
 
-      const json: WithId<FlightDocument> = await result.json();
+      const json = (await result.json()) as WithId<FlightDocument>;
 
       expect(json).toHaveProperty('_id');
       expect(json.aircraft).toBe('CSTRC');

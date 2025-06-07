@@ -14,7 +14,9 @@ export interface AuthServiceInterface {
 
 export interface AuthVariables extends AppVariables {
   user: User;
-  service: AuthServiceInterface;
+  authService: AuthServiceInterface;
 }
 
-export type AuthContext = { Variables: AuthVariables };
+export interface AuthContext {
+  Variables: AuthVariables;
+}

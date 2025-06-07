@@ -1,34 +1,37 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { credentials, account } from './schema.js';
+import { Hono } from 'hono';
+import type { MiddlewareHandler } from 'hono';
 import { ValidationError } from '../error.js';
 import type { AuthContext } from './context.js';
+import { credentials, account } from './schema.js';
+import { createAuthState } from './state.js';
 
-const validateCredentials = zValidator('json', credentials, (result, c) => {
+const validateCredentials = zValidator('json', credentials, (result) => {
   if (!result.success) {
     throw new ValidationError();
   }
 });
 
-const validateAccount = zValidator('json', account, (result, c) => {
+const validateAccount = zValidator('json', account, (result) => {
   if (!result.success) {
     throw new ValidationError();
   }
 });
 
-const createRouter = () => {
+const createRouter = (state: MiddlewareHandler<AuthContext>) => {
   const router = new Hono<AuthContext>();
+  router.use(state);
 
   router.post('/signup', validateAccount, async (c) => {
     const account = c.req.valid('json');
-    const service = c.get('service');
+    const service = c.get('authService');
     const user = await service.signup(account);
     return c.json(user, 201);
   });
 
-  router.post('/', validateCredentials, async (c) => {
+  router.post('/', validateCredentials, (c) => {
     const credentials = c.req.valid('json');
-    const service = c.get('service');
+    const service = c.get('authService');
     const token = service.signin(credentials);
     return c.json(token, 200);
   });
@@ -36,4 +39,4 @@ const createRouter = () => {
   return router;
 };
 
-export const auth = createRouter();
+export const auth = createRouter(createAuthState);

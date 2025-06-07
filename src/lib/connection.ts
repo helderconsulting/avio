@@ -15,6 +15,7 @@ export class Connection {
 
       return this.db;
     } catch (error) {
+      console.error(error);
       throw new AppError();
     }
   }
@@ -24,6 +25,7 @@ export class Connection {
       await this.client.close();
       this.db = null;
     } catch (error) {
+      console.error(error);
       throw new AppError();
     }
   }

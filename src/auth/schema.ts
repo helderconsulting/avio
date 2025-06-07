@@ -1,8 +1,8 @@
 import z from 'zod';
 
 export const credentials = z.object({
-  username: z.string(),
-  password: z.string(),
+  username: z.string().min(1),
+  password: z.string().min(1),
 });
 
 export const account = credentials.extend({

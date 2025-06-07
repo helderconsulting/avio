@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
-import type { Db } from 'mongodb';
 import { bearer, username } from 'better-auth/plugins';
+import type { Db } from 'mongodb';
 
 export const createAuth = (db: Db) =>
   betterAuth({

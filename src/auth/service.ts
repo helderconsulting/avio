@@ -1,8 +1,8 @@
 import type { User } from 'better-auth';
+import { AppError } from '../error.js';
 import type { Auth } from '../lib/auth.js';
 import type { AuthServiceInterface, Token } from './context.js';
 import { UnauthorizedError } from './error.js';
-import { AppError } from '../error.js';
 import type { Credentials, Account } from './schema.js';
 
 export class AuthService implements AuthServiceInterface {
@@ -19,10 +19,6 @@ export class AuthService implements AuthServiceInterface {
         },
       });
 
-      if (!result) {
-        throw new UnauthorizedError();
-      }
-
       return result.user;
     } catch (error) {
       if (error instanceof UnauthorizedError) {
@@ -34,10 +30,6 @@ export class AuthService implements AuthServiceInterface {
 
   async signin({ username, password }: Credentials): Promise<Token> {
     try {
-      if (username.length === 0 || password.length === 0) {
-        throw new UnauthorizedError();
-      }
-
       const result = await this.auth.api.signInUsername({
         body: {
           username,
@@ -51,6 +43,7 @@ export class AuthService implements AuthServiceInterface {
 
       return { token: result.token };
     } catch (error) {
+      console.error(error);
       if (error instanceof UnauthorizedError) {
         throw error;
       }
@@ -73,6 +66,7 @@ export class AuthService implements AuthServiceInterface {
       if (error instanceof UnauthorizedError) {
         throw error;
       }
+      console.error(error);
       throw new AppError();
     }
   }

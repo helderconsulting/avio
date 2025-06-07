@@ -12,7 +12,7 @@ export class AppError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 
-  async toReponse(c: Context) {
+  toReponse(c: Context) {
     console.log(this.message);
     return c.text(this.message, this.statusCode);
   }

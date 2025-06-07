@@ -6,6 +6,6 @@ export interface AppVariables {
   auth: Auth;
 }
 
-export type AppContext = {
+export interface AppContext {
   Variables: AppVariables;
-};
+}

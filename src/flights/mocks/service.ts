@@ -1,21 +1,23 @@
-import type { FlightDocument } from '../schema.js';
+import { ObjectId } from 'mongodb';
+import type { WithId } from 'mongodb';
+import { AppError } from '../../error.js';
 import type { FlightsServiceInterface } from '../context.js';
 import { NotFoundError } from '../error.js';
-import { AppError } from '../../error.js';
-import { ObjectId, type WithId } from 'mongodb';
+import type { FlightDocument } from '../schema.js';
 
 export class MockFlightsService implements FlightsServiceInterface {
   constructor(private collection: Map<ObjectId, WithId<FlightDocument>>) {}
 
-  async retrieveAllFlights(): Promise<FlightDocument[]> {
+  retrieveAllFlights(): Promise<FlightDocument[]> {
     try {
-      return Array.from(this.collection.values());
-    } catch (error) {
+      const documents = Array.from(this.collection.values());
+      return Promise.resolve(documents);
+    } catch {
       throw new AppError();
     }
   }
 
-  async retrieveFlight(id: string): Promise<FlightDocument> {
+  retrieveFlight(id: string): Promise<FlightDocument> {
     try {
       const objectId = new ObjectId(id);
       if (!this.collection.has(objectId)) {
@@ -27,7 +29,7 @@ export class MockFlightsService implements FlightsServiceInterface {
         throw new NotFoundError();
       }
 
-      return document;
+      return Promise.resolve(document);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw error;
@@ -58,22 +60,20 @@ export class MockFlightsService implements FlightsServiceInterface {
       return null;
     }
 
-    return result;
+    return Promise.resolve(result);
   }
 
-  async deleteFlight(id: string): Promise<void> {
+  deleteFlight(id: string): Promise<void> {
     const objectId = new ObjectId(id);
 
     if (this.collection.has(objectId)) {
       this.collection.delete(objectId);
     }
 
-    return;
+    return Promise.resolve();
   }
 
-  async createFlight(
-    document: FlightDocument
-  ): Promise<WithId<FlightDocument>> {
+  createFlight(document: FlightDocument): Promise<WithId<FlightDocument>> {
     const objectId = new ObjectId();
 
     const documentWithId = {
@@ -83,6 +83,6 @@ export class MockFlightsService implements FlightsServiceInterface {
 
     this.collection.set(objectId, documentWithId);
 
-    return documentWithId;
+    return Promise.resolve(documentWithId);
   }
 }

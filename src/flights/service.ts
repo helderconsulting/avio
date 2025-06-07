@@ -1,8 +1,9 @@
-import { ObjectId, type Collection } from 'mongodb';
-import type { FlightDocument } from './schema.js';
+import { ObjectId } from 'mongodb';
+import type { Collection } from 'mongodb';
 import { AppError } from '../error.js';
-import { NotFoundError } from './error.js';
 import type { FlightsServiceInterface } from './context.js';
+import { NotFoundError } from './error.js';
+import type { FlightDocument } from './schema.js';
 
 export class FlightsService implements FlightsServiceInterface {
   constructor(private collection: Collection<FlightDocument>) {}
@@ -15,6 +16,7 @@ export class FlightsService implements FlightsServiceInterface {
 
       return flights;
     } catch (error) {
+      console.error(error);
       throw new AppError();
     }
   }
@@ -34,6 +36,7 @@ export class FlightsService implements FlightsServiceInterface {
       if (error instanceof NotFoundError) {
         throw error;
       }
+      console.error(error);
       throw new AppError();
     }
   }
@@ -55,6 +58,7 @@ export class FlightsService implements FlightsServiceInterface {
       if (error instanceof NotFoundError) {
         throw error;
       }
+      console.error(error);
       throw new AppError();
     }
   }
@@ -81,6 +85,7 @@ export class FlightsService implements FlightsServiceInterface {
       if (error instanceof AppError) {
         throw error;
       }
+      console.error(error);
       throw new AppError();
     }
   }
@@ -98,6 +103,7 @@ export class FlightsService implements FlightsServiceInterface {
       if (error instanceof AppError) {
         throw error;
       }
+      console.error(error);
       throw new AppError();
     }
   }
