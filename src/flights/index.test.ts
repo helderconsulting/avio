@@ -3,7 +3,10 @@ import { ObjectId } from 'mongodb';
 import type { WithId } from 'mongodb';
 import { authenticated, unauthenticated } from '../auth/mocks/state.js';
 import type { FlightsContext } from './context.js';
-import { createMockFlightsState } from './mocks/state.js';
+import {
+  createFailingMockFlightsState,
+  createMockFlightsState,
+} from './mocks/state.js';
 import type { FlightRequest } from './schema.js';
 import { createRouter } from './index.js';
 
@@ -32,6 +35,7 @@ const invalidPayload = JSON.stringify({
 describe('Flights Endpoint', () => {
   describe('GET /flights', () => {
     const flightId = '6841cade4cace03b8f75235b';
+    let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
     beforeAll(() => {
@@ -48,6 +52,10 @@ describe('Flights Endpoint', () => {
           destination: 'LPLA',
         },
       ];
+      failingRouter = createRouter(
+        createFailingMockFlightsState(collection),
+        authenticated
+      );
       authenticatedRouter = createRouter(
         createMockFlightsState(collection),
         authenticated
@@ -69,20 +77,25 @@ describe('Flights Endpoint', () => {
 
     test('should return 401 if not authenticated', async () => {
       const result = await unauthenticatedRouter.request('/');
-
       expect(result.status).toBe(401);
     });
 
     test('should return 500 on server error', async () => {
-      // ...
+      const result = await failingRouter.request('/');
+      expect(result.status).toBe(500);
     });
   });
 
   describe('POST /flights', () => {
+    let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
     beforeAll(() => {
       const collection: WithId<FlightRequest>[] = [];
+      failingRouter = createRouter(
+        createFailingMockFlightsState(collection),
+        authenticated
+      );
       authenticatedRouter = createRouter(
         createMockFlightsState(collection),
         authenticated
@@ -129,12 +142,19 @@ describe('Flights Endpoint', () => {
     });
 
     test('should return 500 on server error', async () => {
-      // ...
+      const result = await failingRouter.request('/', {
+        method: 'POST',
+        body: validPayload,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+      });
+
+      expect(result.status).toBe(500);
     });
   });
 
   describe('GET /flights/:flightId', () => {
     const flightId = '6841cade4cace03b8f75235b';
+    let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
     beforeAll(() => {
@@ -151,6 +171,10 @@ describe('Flights Endpoint', () => {
           destination: 'LPLA',
         },
       ];
+      failingRouter = createRouter(
+        createFailingMockFlightsState(collection),
+        authenticated
+      );
       authenticatedRouter = createRouter(
         createMockFlightsState(collection),
         authenticated
@@ -182,12 +206,14 @@ describe('Flights Endpoint', () => {
     });
 
     test('should return 500 on server error', async () => {
-      // ...
+      const result = await failingRouter.request('/6841cade4cace03b8f75235d');
+      expect(result.status).toBe(500);
     });
   });
 
   describe('PATCH /flights/:flightId', () => {
     const flightId = '6841cade4cace03b8f75235b';
+    let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
     beforeAll(() => {
@@ -204,6 +230,10 @@ describe('Flights Endpoint', () => {
           destination: 'LPLA',
         },
       ];
+      failingRouter = createRouter(
+        createFailingMockFlightsState(collection),
+        authenticated
+      );
       authenticatedRouter = createRouter(
         createMockFlightsState(collection),
         authenticated
@@ -258,13 +288,20 @@ describe('Flights Endpoint', () => {
     });
 
     test('should return 500 on server error', async () => {
-      // ...
+      const objectId = new ObjectId();
+      const result = await failingRouter.request(`/${objectId.toHexString()}`, {
+        method: 'PATCH',
+        body: validPayload,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+      });
+      expect(result.status).toBe(500);
     });
   });
 });
 
 describe('DELETE /flights/:flightId', () => {
   const flightId = '6841cade4cace03b8f75235b';
+  let failingRouter: Hono<FlightsContext>;
   let authenticatedRouter: Hono<FlightsContext>;
   let unauthenticatedRouter: Hono<FlightsContext>;
   beforeAll(() => {
@@ -281,6 +318,10 @@ describe('DELETE /flights/:flightId', () => {
         destination: 'LPLA',
       },
     ];
+    failingRouter = createRouter(
+      createFailingMockFlightsState(collection),
+      authenticated
+    );
     authenticatedRouter = createRouter(
       createMockFlightsState(collection),
       authenticated
@@ -316,6 +357,10 @@ describe('DELETE /flights/:flightId', () => {
   });
 
   test('should return 500 on server error', async () => {
-    // ...
+    const objectId = new ObjectId();
+    const result = await failingRouter.request(`/${objectId.toHexString()}`, {
+      method: 'DELETE',
+    });
+    expect(result.status).toBe(500);
   });
 });

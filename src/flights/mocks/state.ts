@@ -24,3 +24,12 @@ export const createMockFlightsState =
     c.set('flightsService', mockService);
     await next();
   };
+
+export const createFailingMockFlightsState =
+  (flights: WithId<FlightRequest>[]): MiddlewareHandler<FlightsContext> =>
+  async (c, next) => {
+    const mockService = createMockService(flights);
+    mockService.failInternally();
+    c.set('flightsService', mockService);
+    await next();
+  };

@@ -7,10 +7,18 @@ import type { FlightRequest, FlightResponse } from '../schema.js';
 import { toFlightReponse } from '../schema.js';
 
 export class MockFlightsService implements FlightsServiceInterface {
+  private shouldFailInternally = false;
   constructor(private collection: Map<string, WithId<FlightRequest>>) {}
+
+  failInternally() {
+    this.shouldFailInternally = true;
+  }
 
   retrieveAllFlights(): Promise<FlightResponse[]> {
     try {
+      if (this.shouldFailInternally) {
+        throw new Error('Internal failure');
+      }
       const documents = Array.from(this.collection.values());
       return Promise.resolve(documents.map(toFlightReponse));
     } catch {
@@ -20,6 +28,10 @@ export class MockFlightsService implements FlightsServiceInterface {
 
   retrieveFlight(id: string): Promise<FlightResponse> {
     try {
+      if (this.shouldFailInternally) {
+        throw new Error('Internal failure');
+      }
+
       if (!this.collection.has(id)) {
         throw new NotFoundError();
       }
@@ -40,6 +52,10 @@ export class MockFlightsService implements FlightsServiceInterface {
 
   updateFlight(id: string, document: FlightRequest): Promise<FlightResponse> {
     try {
+      if (this.shouldFailInternally) {
+        throw new Error('Internal failure');
+      }
+
       const objectId = new ObjectId(id);
 
       if (!this.collection.has(id)) {
@@ -69,6 +85,10 @@ export class MockFlightsService implements FlightsServiceInterface {
 
   deleteFlight(id: string): Promise<void> {
     try {
+      if (this.shouldFailInternally) {
+        throw new Error('Internal failure');
+      }
+
       if (!this.collection.has(id)) {
         throw new NotFoundError();
       }
@@ -86,6 +106,9 @@ export class MockFlightsService implements FlightsServiceInterface {
 
   createFlight(document: WithId<FlightRequest>): Promise<FlightResponse> {
     try {
+      if (this.shouldFailInternally) {
+        throw new Error('Internal failure');
+      }
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       document._id ??= new ObjectId('6841cade4cace03b8f75235b');
 
