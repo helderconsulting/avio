@@ -2,6 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
 import { ValidationError } from '../error.js';
+import { handleError } from '../lib/error.js';
 import type { AuthContext } from './context.js';
 import { credentials, account } from './schema.js';
 import { createAuthState } from './state.js';
@@ -21,6 +22,7 @@ const validateAccount = zValidator('json', account, (result) => {
 const createRouter = (authState: MiddlewareHandler<AuthContext>) => {
   const router = new Hono<AuthContext>();
   router.use(authState);
+  router.onError(handleError('auth'));
 
   router.post('/signup', validateAccount, async (c) => {
     const account = c.req.valid('json');
@@ -31,11 +33,11 @@ const createRouter = (authState: MiddlewareHandler<AuthContext>) => {
     return c.json(user, 201);
   });
 
-  router.post('/', validateCredentials, (c) => {
+  router.post('/', validateCredentials, async (c) => {
     const credentials = c.req.valid('json');
 
     const service = c.get('authService');
-    const token = service.signin(credentials);
+    const token = await service.signin(credentials);
 
     return c.json(token, 200);
   });

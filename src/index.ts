@@ -4,11 +4,13 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
 import { logger } from 'hono/logger';
+import { MongoClient } from 'mongodb';
 import type { AuthContext } from './auth/context.js';
 import { auth } from './auth/index.js';
 import { createAuthState } from './auth/state.js';
 import type { AppContext } from './context.js';
 import { flights } from './flights/index.js';
+import { Connection } from './lib/connection.js';
 import { handleError } from './lib/error.js';
 import { createAppState } from './state.js';
 
@@ -32,7 +34,9 @@ export const createRouter = (
   return router;
 };
 
-const app = createRouter(createAppState, createAuthState);
+const client = new MongoClient(process.env.CONNECTION_URL);
+const connection = new Connection(client);
+const app = createRouter(createAppState(connection), createAuthState);
 
 serve(
   {

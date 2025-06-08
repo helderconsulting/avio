@@ -85,8 +85,15 @@ export class MockFlightsService implements FlightsServiceInterface {
   }
 
   createFlight(document: WithId<FlightRequest>): Promise<FlightResponse> {
-    this.collection.set(document._id.toHexString(), document);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      document._id ??= new ObjectId('6841cade4cace03b8f75235b');
 
-    return Promise.resolve(toFlightReponse(document));
+      this.collection.set(document._id.toString(), document);
+
+      return Promise.resolve(toFlightReponse(document));
+    } catch {
+      return Promise.reject(new AppError());
+    }
   }
 }

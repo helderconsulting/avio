@@ -1,21 +1,20 @@
 import type { MiddlewareHandler } from 'hono';
-import { MongoClient } from 'mongodb';
 import type { AppContext } from './context.js';
-import { Connection } from './lib/connection.js';
+import type { ConnectionInterface } from './lib/types.js';
 
-const client = new MongoClient(process.env.CONNECTION_URL);
-const connection = new Connection(client);
+export const createAppState = (
+  connection: ConnectionInterface
+): MiddlewareHandler<AppContext> => {
+  process.on('SIGINT', () => {
+    connection.disconnect().catch(console.error);
+  });
+  process.on('SIGTERM', () => {
+    connection.disconnect().catch(console.error);
+  });
 
-export const createAppState: MiddlewareHandler<AppContext> = async (
-  c,
-  next
-) => {
-  const db = await connection.connect();
-  c.set('db', db);
-
-  await next();
+  return async (c, next) => {
+    const db = await connection.connect();
+    c.set('db', db);
+    await next();
+  };
 };
-
-process.on('SIGINT', () => {
-  connection.disconnect().catch(console.error);
-});

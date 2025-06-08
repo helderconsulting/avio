@@ -47,7 +47,7 @@ export class FlightsService implements FlightsServiceInterface {
       const update = await this.collection.findOneAndUpdate(
         { _id: new ObjectId(id) },
         { $set: document },
-        { returnDocument: 'after', projection: { _id: 0 } }
+        { returnDocument: 'after' }
       );
 
       if (!update) {
@@ -99,7 +99,7 @@ export class FlightsService implements FlightsServiceInterface {
         throw new AppError();
       }
 
-      return { ...document, id: inserted.insertedId.toHexString() };
+      return toFlightReponse({ ...document, _id: inserted.insertedId });
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

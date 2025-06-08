@@ -1,6 +1,7 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import type { Collection, Db, WithId } from 'mongodb';
 import { AppError } from '../error.js';
+import { Connection } from '../lib/mocks/connection.js';
 import { NotFoundError } from './error.js';
 import { MockFlightsService } from './mocks/service.js';
 import { createMockService } from './mocks/state.js';
@@ -9,6 +10,7 @@ import { FlightsService } from './service.js';
 import { createFlightsService } from './state.js';
 
 describe('FlightsService Contract', () => {
+  const connection = new Connection();
   const flightId = '6842ee23feb532c8cd74fddb';
   const flights: WithId<FlightRequest>[] = [
     {
@@ -27,14 +29,17 @@ describe('FlightsService Contract', () => {
   let db: Db;
   let collection: Collection<FlightRequest>;
 
+  beforeAll(async () => {
+    db = await connection.connect();
+    collection = db.collection('flights');
+  });
+
+  afterAll(async () => {
+    await connection.disconnect();
+  });
+
   describe('retrieveAllFlights', () => {
     beforeEach(async () => {
-      const client = new MongoClient(process.env.CONNECTION_URL);
-      await client.connect();
-      db = client.db(process.env.DATABASE);
-
-      collection = db.collection('flights');
-      await collection.drop();
       await collection.insertMany(flights);
     });
 
@@ -67,12 +72,6 @@ describe('FlightsService Contract', () => {
 
   describe('retrieveFlight', () => {
     beforeEach(async () => {
-      const client = new MongoClient(process.env.CONNECTION_URL);
-      await client.connect();
-      db = client.db(process.env.DATABASE);
-
-      collection = db.collection('flights');
-
       await collection.insertMany(flights);
     });
 
@@ -133,12 +132,6 @@ describe('FlightsService Contract', () => {
     };
 
     beforeEach(async () => {
-      const client = new MongoClient(process.env.CONNECTION_URL);
-      await client.connect();
-      db = client.db(process.env.DATABASE);
-
-      collection = db.collection('flights');
-
       await collection.insertMany(flights);
     });
 
@@ -187,12 +180,6 @@ describe('FlightsService Contract', () => {
   });
   describe('deleteFlight', () => {
     beforeEach(async () => {
-      const client = new MongoClient(process.env.CONNECTION_URL);
-      await client.connect();
-      db = client.db(process.env.DATABASE);
-
-      collection = db.collection('flights');
-
       await collection.insertMany(flights);
     });
 
@@ -245,12 +232,6 @@ describe('FlightsService Contract', () => {
   });
   describe('createFlight', () => {
     beforeEach(async () => {
-      const client = new MongoClient(process.env.CONNECTION_URL);
-      await client.connect();
-      db = client.db(process.env.DATABASE);
-
-      collection = db.collection('flights');
-
       await collection.insertMany(flights);
     });
 

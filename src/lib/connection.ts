@@ -1,7 +1,8 @@
 import type { Db, MongoClient } from 'mongodb';
 import { AppError } from '../error.js';
+import type { ConnectionInterface } from './types.js';
 
-export class Connection {
+export class Connection implements ConnectionInterface {
   private db: Db | null = null;
 
   constructor(private client: MongoClient) {}
