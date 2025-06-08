@@ -2,6 +2,7 @@ import type { Hono } from 'hono';
 import { ObjectId } from 'mongodb';
 import type { WithId } from 'mongodb';
 import { authenticated, unauthenticated } from '../auth/mocks/state.js';
+import { mockUser } from '../auth/mocks/user.js';
 import type { FlightsContext } from './context.js';
 import {
   createFailingMockFlightsState,
@@ -35,8 +36,6 @@ const invalidPayload = JSON.stringify({
 describe('Flights Endpoint', () => {
   describe('GET /flights', () => {
     const flightId = '6841cade4cace03b8f75235b';
-    const userId = 'usr001';
-
     let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
@@ -44,7 +43,7 @@ describe('Flights Endpoint', () => {
       const collection = [
         {
           _id: new ObjectId(flightId),
-          userId,
+          userId: mockUser.id,
           aircraft: 'CSTRC',
           flightNumber: 'AVIO205',
           schedule: {
@@ -157,8 +156,6 @@ describe('Flights Endpoint', () => {
 
   describe('GET /flights/:flightId', () => {
     const flightId = '6841cade4cace03b8f75235b';
-    const userId = 'usr001';
-
     let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
@@ -166,7 +163,7 @@ describe('Flights Endpoint', () => {
       const collection = [
         {
           _id: new ObjectId(flightId),
-          userId,
+          userId: mockUser.id,
           aircraft: 'CSTRC',
           flightNumber: 'AVIO205',
           schedule: {
@@ -219,7 +216,6 @@ describe('Flights Endpoint', () => {
 
   describe('PATCH /flights/:flightId', () => {
     const flightId = '6841cade4cace03b8f75235b';
-    const userId = 'usr001';
     let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
@@ -227,7 +223,7 @@ describe('Flights Endpoint', () => {
       const collection = [
         {
           _id: new ObjectId(flightId),
-          userId,
+          userId: mockUser.id,
           aircraft: 'CSTRC',
           flightNumber: 'AVIO205',
           schedule: {
@@ -309,7 +305,6 @@ describe('Flights Endpoint', () => {
 
 describe('DELETE /flights/:flightId', () => {
   const flightId = '6841cade4cace03b8f75235b';
-  const userId = 'usr001';
   let failingRouter: Hono<FlightsContext>;
   let authenticatedRouter: Hono<FlightsContext>;
   let unauthenticatedRouter: Hono<FlightsContext>;
@@ -317,7 +312,7 @@ describe('DELETE /flights/:flightId', () => {
     const collection = [
       {
         _id: new ObjectId(flightId),
-        userId,
+        userId: mockUser.id,
         aircraft: 'CSTRC',
         flightNumber: 'AVIO205',
         schedule: {

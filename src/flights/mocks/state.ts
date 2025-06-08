@@ -1,5 +1,6 @@
 import type { MiddlewareHandler } from 'hono';
 import type { WithId } from 'mongodb';
+import { mockUser } from '../../auth/mocks/user.js';
 import type { FlightsContext } from '../context.js';
 import type { FlightEntity } from '../schema.js';
 import { MockFlightsService, toKey } from './service.js';
@@ -22,14 +23,6 @@ export const createMockFlightsState =
   async (c, next) => {
     const mockService = createMockService(flights);
     c.set('flightsService', mockService);
-    const mockUser = {
-      id: 'usr001',
-      name: '',
-      email: '',
-      emailVerified: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
 
     c.set('user', mockUser);
     await next();
