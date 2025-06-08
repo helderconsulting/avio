@@ -4,14 +4,16 @@ import { AppError } from '../error.js';
 import type { FlightsServiceInterface } from './context.js';
 import { NotFoundError } from './error.js';
 import { toFlightReponse } from './schema.js';
-import type { FlightRequest } from './schema.js';
+import type { FlightEntity, FlightRequest } from './schema.js';
 
 export class FlightsService implements FlightsServiceInterface {
-  constructor(private collection: Collection<FlightRequest>) {}
+  constructor(private collection: Collection<FlightEntity>) {}
 
-  async retrieveAllFlights() {
+  async retrieveAllFlights(userId: string) {
     try {
-      const cursor = this.collection.find();
+      const cursor = this.collection.find({
+        userId,
+      });
 
       const flights = await cursor.toArray();
 
@@ -22,10 +24,11 @@ export class FlightsService implements FlightsServiceInterface {
     }
   }
 
-  async retrieveFlight(id: string) {
+  async retrieveFlight(flightId: string, userId: string) {
     try {
       const found = await this.collection.findOne({
-        _id: new ObjectId(id),
+        _id: new ObjectId(flightId),
+        userId,
       });
 
       if (!found) {
@@ -42,11 +45,11 @@ export class FlightsService implements FlightsServiceInterface {
     }
   }
 
-  async updateFlight(id: string, document: FlightRequest) {
+  async updateFlight(flightId: string, userId: string, request: FlightRequest) {
     try {
       const update = await this.collection.findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: document },
+        { _id: new ObjectId(flightId), userId },
+        { $set: request },
         { returnDocument: 'after' }
       );
 
@@ -64,10 +67,11 @@ export class FlightsService implements FlightsServiceInterface {
     }
   }
 
-  async deleteFlight(id: string) {
+  async deleteFlight(flightId: string, userId: string) {
     try {
       const removal = await this.collection.deleteOne({
-        _id: new ObjectId(id),
+        _id: new ObjectId(flightId),
+        userId,
       });
 
       if (!removal.acknowledged) {
@@ -91,15 +95,16 @@ export class FlightsService implements FlightsServiceInterface {
     }
   }
 
-  async createFlight(document: FlightRequest) {
+  async createFlight(userId: string, request: FlightRequest) {
     try {
-      const inserted = await this.collection.insertOne(document);
+      const entity: FlightEntity = { ...request, userId };
+      const inserted = await this.collection.insertOne(entity);
 
       if (!inserted.acknowledged) {
         throw new AppError();
       }
 
-      return toFlightReponse({ ...document, _id: inserted.insertedId });
+      return toFlightReponse({ ...entity, _id: inserted.insertedId });
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

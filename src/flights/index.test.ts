@@ -7,7 +7,7 @@ import {
   createFailingMockFlightsState,
   createMockFlightsState,
 } from './mocks/state.js';
-import type { FlightRequest } from './schema.js';
+import type { FlightEntity, FlightResponse } from './schema.js';
 import { createRouter } from './index.js';
 
 const validPayload = JSON.stringify({
@@ -35,6 +35,8 @@ const invalidPayload = JSON.stringify({
 describe('Flights Endpoint', () => {
   describe('GET /flights', () => {
     const flightId = '6841cade4cace03b8f75235b';
+    const userId = 'usr001';
+
     let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
@@ -42,6 +44,7 @@ describe('Flights Endpoint', () => {
       const collection = [
         {
           _id: new ObjectId(flightId),
+          userId,
           aircraft: 'CSTRC',
           flightNumber: 'AVIO205',
           schedule: {
@@ -69,7 +72,7 @@ describe('Flights Endpoint', () => {
     test('should return a list of flights', async () => {
       const result = await authenticatedRouter.request('/');
 
-      const json = await result.json<WithId<FlightRequest>[]>();
+      const json = await result.json<WithId<FlightResponse>[]>();
 
       expect(json).toMatchSnapshot();
       expect(result.status).toBe(200);
@@ -91,7 +94,7 @@ describe('Flights Endpoint', () => {
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
     beforeAll(() => {
-      const collection: WithId<FlightRequest>[] = [];
+      const collection: WithId<FlightEntity>[] = [];
       failingRouter = createRouter(
         createFailingMockFlightsState(collection),
         authenticated
@@ -112,7 +115,7 @@ describe('Flights Endpoint', () => {
         headers: new Headers({ 'Content-Type': 'application/json' }),
       });
 
-      const json = await result.json<WithId<FlightRequest>>();
+      const json = await result.json<WithId<FlightResponse>>();
 
       expect(json).toMatchSnapshot();
       expect(result.status).toBe(201);
@@ -154,6 +157,8 @@ describe('Flights Endpoint', () => {
 
   describe('GET /flights/:flightId', () => {
     const flightId = '6841cade4cace03b8f75235b';
+    const userId = 'usr001';
+
     let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
@@ -161,6 +166,7 @@ describe('Flights Endpoint', () => {
       const collection = [
         {
           _id: new ObjectId(flightId),
+          userId,
           aircraft: 'CSTRC',
           flightNumber: 'AVIO205',
           schedule: {
@@ -187,7 +193,7 @@ describe('Flights Endpoint', () => {
     test('should return a flight by id', async () => {
       const result = await authenticatedRouter.request(`/${flightId}`);
 
-      const json = await result.json();
+      const json = await result.json<FlightResponse>();
 
       expect(json).toMatchSnapshot();
       expect(result.status).toBe(200);
@@ -213,6 +219,7 @@ describe('Flights Endpoint', () => {
 
   describe('PATCH /flights/:flightId', () => {
     const flightId = '6841cade4cace03b8f75235b';
+    const userId = 'usr001';
     let failingRouter: Hono<FlightsContext>;
     let authenticatedRouter: Hono<FlightsContext>;
     let unauthenticatedRouter: Hono<FlightsContext>;
@@ -220,6 +227,7 @@ describe('Flights Endpoint', () => {
       const collection = [
         {
           _id: new ObjectId(flightId),
+          userId,
           aircraft: 'CSTRC',
           flightNumber: 'AVIO205',
           schedule: {
@@ -250,7 +258,7 @@ describe('Flights Endpoint', () => {
         headers: new Headers({ 'Content-Type': 'application/json' }),
       });
 
-      const json = await result.json();
+      const json = await result.json<FlightResponse>();
 
       expect(json).toMatchSnapshot();
       expect(result.status).toBe(200);
@@ -301,6 +309,7 @@ describe('Flights Endpoint', () => {
 
 describe('DELETE /flights/:flightId', () => {
   const flightId = '6841cade4cace03b8f75235b';
+  const userId = 'usr001';
   let failingRouter: Hono<FlightsContext>;
   let authenticatedRouter: Hono<FlightsContext>;
   let unauthenticatedRouter: Hono<FlightsContext>;
@@ -308,6 +317,7 @@ describe('DELETE /flights/:flightId', () => {
     const collection = [
       {
         _id: new ObjectId(flightId),
+        userId,
         aircraft: 'CSTRC',
         flightNumber: 'AVIO205',
         schedule: {

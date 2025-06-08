@@ -42,14 +42,17 @@ export const flightRequest = z
 
 export const param = z.object({ flightId: z.string().length(24) });
 export const flightResponse = flightRequest.extend({ id: z.string() });
+export const flightEntity = flightRequest.extend({ userId: z.string() });
 
+export type FlightEntity = z.infer<typeof flightEntity>;
 export type FlightRequest = z.infer<typeof flightRequest>;
 export type FlightResponse = z.infer<typeof flightResponse>;
 
 export const toFlightReponse = ({
   _id,
+  userId,
   ...flight
-}: WithId<FlightRequest>): FlightResponse => ({
+}: WithId<FlightEntity>): FlightResponse => ({
   ...flight,
   id: _id.toHexString(),
 });

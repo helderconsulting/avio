@@ -18,6 +18,7 @@ export const createAuthState: MiddlewareHandler<AuthContext> = async (
 
 export const authGuard: MiddlewareHandler<AuthContext> = async (c, next) => {
   const service = c.get('authService');
-  await service.whoAmI(c.req.raw.headers);
+  const user = await service.whoAmI(c.req.raw.headers);
+  c.set('user', user);
   await next();
 };

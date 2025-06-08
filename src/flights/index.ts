@@ -35,7 +35,8 @@ export const createRouter = (
   router
     .get('/', async (c) => {
       const service = c.get('flightsService');
-      const flights = await service.retrieveAllFlights();
+      const user = c.get('user');
+      const flights = await service.retrieveAllFlights(user.id);
 
       return c.json(flights, 200);
     })
@@ -43,8 +44,9 @@ export const createRouter = (
       const flight = c.req.valid('json');
 
       const service = c.get('flightsService');
-      const inserted = await service.createFlight(flight);
+      const user = c.get('user');
 
+      const inserted = await service.createFlight(user.id, flight);
       return c.json(inserted, 201);
     });
 
@@ -53,7 +55,9 @@ export const createRouter = (
       const { flightId } = c.req.valid('param');
 
       const service = c.get('flightsService');
-      const flight = await service.retrieveFlight(flightId);
+      const user = c.get('user');
+
+      const flight = await service.retrieveFlight(flightId, user.id);
 
       return c.json(flight);
     })
@@ -62,7 +66,9 @@ export const createRouter = (
       const { flightId } = c.req.valid('param');
 
       const service = c.get('flightsService');
-      const update = await service.updateFlight(flightId, flight);
+      const user = c.get('user');
+
+      const update = await service.updateFlight(flightId, user.id, flight);
 
       return c.json(update, 200);
     })
@@ -70,7 +76,9 @@ export const createRouter = (
       const { flightId } = c.req.valid('param');
 
       const service = c.get('flightsService');
-      await service.deleteFlight(flightId);
+      const user = c.get('user');
+
+      await service.deleteFlight(flightId, user.id);
 
       return c.body(null, 204);
     });
