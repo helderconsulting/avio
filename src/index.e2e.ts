@@ -264,6 +264,16 @@ describe('App', () => {
 
         await scenarioUserB.retreiveFlight(flightUserB);
         await scenarioUserB.flightNotFound(flightUserA);
+
+        await expect(
+          scenarioUserA.updateFlightNumber(flightUserB, 'AVIO01BZ')
+        ).rejects.toThrow();
+        await expect(
+          scenarioUserB.updateFlightNumber(flightUserA, 'AVIO01BZ')
+        ).rejects.toThrow();
+
+        await expect(scenarioUserA.deleteFlight(flightUserB)).rejects.toThrow();
+        await expect(scenarioUserB.deleteFlight(flightUserA)).rejects.toThrow();
       });
     });
   });
