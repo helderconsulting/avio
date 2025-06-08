@@ -25,7 +25,6 @@ export const createRouter = (
   router.use(authState);
 
   router.onError(handleError('root'));
-
   router.get('/docs', serveStatic({ path: './docs/open-api.yaml' }));
   router.get('/', swaggerUI({ url: '/docs' }));
 
@@ -38,7 +37,7 @@ const client = new MongoClient(process.env.CONNECTION_URL);
 const connection = new Connection(client);
 const app = createRouter(createAppState(connection), createAuthState);
 
-serve(
+const server = serve(
   {
     fetch: app.fetch,
     port: 3000,
@@ -49,3 +48,18 @@ serve(
     );
   }
 );
+
+process.on('SIGINT', () => server.close());
+process.on('SIGTERM', () => server.close());
+process.on('uncaughtException', (err) => {
+  console.error(err);
+  server.close();
+});
+process.on('unhandledRejection', (err) => {
+  console.error(err);
+  server.close();
+});
+
+server.on('close', () => {
+  connection.disconnect().catch(console.error);
+});
