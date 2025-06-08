@@ -18,7 +18,7 @@ class Scenario {
       method: 'POST',
       body: JSON.stringify({
         name: 'test user',
-        email: 'test@mail.com',
+        email: `${this.username}@mail.com`,
         username: this.username,
         password: this.password,
       }),
@@ -161,7 +161,7 @@ describe('App', () => {
         await scenario.signin();
       });
 
-      test('can create a flight, update the flightnumber and cancel the flight', async () => {
+      test('Can create a flight, update the flightnumber and cancel the flight', async () => {
         const flightId = await scenario.createFlight({
           aircraft: 'CSTRC',
           flightNumber: 'AVIO202',
@@ -179,7 +179,7 @@ describe('App', () => {
         await scenario.flightNotFound(flightId);
       });
 
-      test('can create multiple flights', async () => {
+      test('Can create multiple flights', async () => {
         const firstFlightId = await scenario.createFlight({
           aircraft: 'CSTRC',
           flightNumber: 'AVIO2',
@@ -220,6 +220,50 @@ describe('App', () => {
           secondFlightId,
           thirdFlightId
         );
+      });
+    });
+  });
+  describe('Two users', () => {
+    const scenarioUserA = new Scenario('test_user_a', 'thisIsAGoodPasswordA');
+    const scenarioUserB = new Scenario('test_user_b', 'thisIsAGoodPasswordB');
+    beforeAll(async () => {
+      await scenarioUserA.signup();
+      await scenarioUserB.signup();
+    });
+
+    describe('Who are authenticated', () => {
+      beforeAll(async () => {
+        await scenarioUserA.signin();
+        await scenarioUserB.signin();
+      });
+      test('Can only access their own flights', async () => {
+        const flightUserA = await scenarioUserA.createFlight({
+          aircraft: 'CSTRC',
+          flightNumber: 'AVIO01A',
+          schedule: {
+            std: '2024-09-30T22:00:00.000Z',
+            sta: '2024-09-30T23:00:00.000Z',
+          },
+          departure: 'LPPD',
+          destination: 'LPLA',
+        });
+
+        const flightUserB = await scenarioUserB.createFlight({
+          aircraft: 'CSTRC',
+          flightNumber: 'AVIO01B',
+          schedule: {
+            std: '2024-09-30T22:00:00.000Z',
+            sta: '2024-09-30T23:00:00.000Z',
+          },
+          departure: 'LPPD',
+          destination: 'LPLA',
+        });
+
+        await scenarioUserA.retreiveFlight(flightUserA);
+        await scenarioUserA.flightNotFound(flightUserB);
+
+        await scenarioUserB.retreiveFlight(flightUserB);
+        await scenarioUserB.flightNotFound(flightUserA);
       });
     });
   });
