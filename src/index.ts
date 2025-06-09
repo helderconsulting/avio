@@ -2,6 +2,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { swaggerUI } from '@hono/swagger-ui';
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
+import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
 import type { AuthContext } from './auth/context.js';
 import { auth } from './auth/index.js';
@@ -16,6 +17,7 @@ export const createRouter = (
 ) => {
   const router = new Hono<AppContext>();
 
+  router.use(cors());
   router.use(requestId());
   router.use(logger);
   router.use(appState);

@@ -1,23 +1,41 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import type { MiddlewareHandler } from 'hono';
+import type { Context, MiddlewareHandler } from 'hono';
 import { ValidationError } from '../error.js';
 import { handleError } from '../lib/error.js';
 import type { AuthContext } from './context.js';
 import { credentials, account } from './schema.js';
 import { createAuthState } from './state.js';
 
-const validateCredentials = zValidator('json', credentials, (result) => {
-  if (!result.success) {
-    throw new ValidationError();
+const validateCredentials = zValidator(
+  'json',
+  credentials,
+  (result, c: Context<AuthContext>) => {
+    const { logger } = c.var;
+    if (!result.success) {
+      logger.warn(
+        { payload: result.data, issues: result.error.issues },
+        'Invalid credentials'
+      );
+      throw new ValidationError();
+    }
   }
-});
+);
 
-const validateAccount = zValidator('json', account, (result) => {
-  if (!result.success) {
-    throw new ValidationError();
+const validateAccount = zValidator(
+  'json',
+  account,
+  (result, c: Context<AuthContext>) => {
+    const { logger } = c.var;
+    if (!result.success) {
+      logger.warn(
+        { payload: result.data, issues: result.error.issues },
+        'Invalid account'
+      );
+      throw new ValidationError();
+    }
   }
-});
+);
 
 const createRouter = (authState: MiddlewareHandler<AuthContext>) => {
   const router = new Hono<AuthContext>();

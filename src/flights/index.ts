@@ -15,7 +15,10 @@ const validateParameters = zValidator(
   (result, c: Context<FlightsContext>) => {
     const { logger } = c.var;
     if (!result.success) {
-      logger.warn({ payload: result.data }, 'Invalid parameters');
+      logger.warn(
+        { payload: result.data, issues: result.error.issues },
+        'Invalid parameters'
+      );
       throw new ValidationError();
     }
   }
@@ -25,7 +28,10 @@ const validatePayload = (schema: typeof flightRequest) =>
   zValidator('json', schema, (result, c: Context<FlightsContext>) => {
     const { logger } = c.var;
     if (!result.success) {
-      logger.warn({ payload: result.data }, 'Invalid payload');
+      logger.warn(
+        { payload: result.data, issues: result.error.issues },
+        'Invalid payload'
+      );
       throw new ValidationError();
     }
   });
