@@ -9,8 +9,9 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     env: {
+      LOG_LEVEL: 'silent',
+      NODE_ENV: 'test',
       DATABASE: 'test',
-      CONNECTION_URL: 'mongodb://root:example@localhost:27017',
     },
   },
 });

@@ -19,3 +19,7 @@ export interface AuthVariables extends AppVariables {
 export interface AuthContext {
   Variables: AuthVariables;
 }
+
+export interface PartialAuthContext {
+  Variables: Partial<AuthVariables>;
+}

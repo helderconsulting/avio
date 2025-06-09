@@ -1,6 +1,7 @@
 import type { MiddlewareHandler } from 'hono';
 import type { WithId } from 'mongodb';
 import { mockUser } from '../../auth/mocks/user.js';
+import { pinoLogger } from '../../lib/logger.js';
 import type { FlightsContext } from '../context.js';
 import type { FlightEntity } from '../schema.js';
 import { MockFlightsService, toKey } from './service.js';
@@ -23,7 +24,7 @@ export const createMockFlightsState =
   async (c, next) => {
     const mockService = createMockService(flights);
     c.set('flightsService', mockService);
-
+    c.set('logger', pinoLogger);
     c.set('user', mockUser);
     await next();
   };
@@ -33,6 +34,7 @@ export const createFailingMockFlightsState =
   async (c, next) => {
     const mockService = createMockService(flights);
     mockService.failInternally();
+    c.set('logger', pinoLogger);
     c.set('flightsService', mockService);
     await next();
   };

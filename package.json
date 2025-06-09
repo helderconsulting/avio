@@ -6,11 +6,11 @@
     "npm": "8.19.2"
   },
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/index.ts ",
+    "dev": "tsx watch --env-file=.env src/app.ts ",
     "build": "tsc --project tsconfig.build.json",
     "test": "vitest",
     "lint": "eslint",
-    "start": "node --env-file=.env dist/index.js"
+    "start": "node --env-file=.env dist/app.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
@@ -19,6 +19,8 @@
     "better-auth": "^1.2.8",
     "hono": "^4.7.11",
     "mongodb": "^6.17.0",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0",
     "zod": "^3.25.51"
   },
   "devDependencies": {

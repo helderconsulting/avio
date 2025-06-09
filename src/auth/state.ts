@@ -1,24 +1,36 @@
-import type { MiddlewareHandler } from 'hono';
+import type { Context, MiddlewareHandler } from 'hono';
+import { AppError } from '../error.js';
 import { createAuth } from '../lib/auth.js';
-import type { AuthContext } from './context.js';
+import type { AuthContext, PartialAuthContext } from './context.js';
 import { AuthService } from './service.js';
 
 export const createAuthState: MiddlewareHandler<AuthContext> = async (
   c,
   next
 ) => {
-  const db = c.get('db');
-  const auth = createAuth(db);
+  const { db, logger } = c.var;
+  try {
+    const state = c as Context<PartialAuthContext>;
+    logger.debug('Creating Auth State');
 
-  const authService = new AuthService(auth);
-  c.set('authService', authService);
+    if (!state.get('authService')) {
+      const auth = createAuth(db);
+      const authService = new AuthService(auth, logger);
+      logger.debug('Auth service created');
+      state.set('authService', authService);
+    }
 
-  await next();
+    logger.debug({ state: Object.keys(c.var) }, 'Auth State created');
+    await next();
+  } catch (error) {
+    logger.error(error);
+    throw new AppError();
+  }
 };
 
 export const authGuard: MiddlewareHandler<AuthContext> = async (c, next) => {
-  const service = c.get('authService');
-  const user = await service.whoAmI(c.req.raw.headers);
+  const { authService } = c.var;
+  const user = await authService.whoAmI(c.req.raw.headers);
   c.set('user', user);
   await next();
 };

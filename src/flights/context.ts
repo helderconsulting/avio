@@ -23,3 +23,7 @@ export interface FlightsVariables extends AppVariables {
 export interface FlightsContext {
   Variables: FlightsVariables;
 }
+
+export interface PartialFlightsContext {
+  Variables: Partial<FlightsVariables>;
+}

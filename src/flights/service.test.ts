@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import type { Collection, Db, WithId } from 'mongodb';
 import { AppError } from '../error.js';
+import { pinoLogger } from '../lib/logger.js';
 import { Connection } from '../lib/mocks/connection.js';
 import { NotFoundError } from './error.js';
 import { MockFlightsService } from './mocks/service.js';
@@ -50,7 +51,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should retrieve all flights', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const realFlights = await realService.retrieveAllFlights(userId);
@@ -61,7 +62,8 @@ describe('FlightsService Contract', () => {
 
     test('should throw an AppError', async () => {
       const realService = new FlightsService(
-        undefined as unknown as Collection<FlightEntity>
+        undefined as unknown as Collection<FlightEntity>,
+        pinoLogger
       );
       const mockService = new MockFlightsService(
         undefined as unknown as Map<string, WithId<FlightEntity>>
@@ -86,7 +88,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should find a flight by id', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const realFlight = await realService.retrieveFlight(flightId, userId);
@@ -96,7 +98,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should throw a NotFoundError', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const wrongFlightId = '6842ee23feb532c8cd74fdda';
@@ -110,7 +112,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should throw an AppError', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const nonHexFlightId = '6842ee23feb532c8cd74fzzz';
@@ -146,7 +148,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should update the flight', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const realFlight = await realService.updateFlight(
@@ -165,7 +167,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should throw a NotFoundError', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const wrongFlightId = '6842ee23feb532c8cd74fdda';
@@ -179,7 +181,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should throw an AppError', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const nonHexFlightId = '6842ee23feb532c8cd74fzzz';
@@ -202,7 +204,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should cancel a flight', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       await realService.deleteFlight(flightId, userId);
@@ -217,7 +219,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should throw a NotFoundError', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const wrongFlightId = '6842ee23feb532c8cd74fdda';
@@ -232,7 +234,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should throw an AppError', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
 
       const nonHexFlightId = '6842ee23feb532c8cd74fzzz';
@@ -256,7 +258,7 @@ describe('FlightsService Contract', () => {
     });
 
     test('should create a new flight', async () => {
-      const realService = createFlightsService(db);
+      const realService = createFlightsService(db, pinoLogger);
       const mockService = createMockService(flights);
       const flightId = '6841cade4cace03b8f75235b';
       const userId = 'usr001';

@@ -24,8 +24,7 @@ export class Connection implements ConnectionInterface {
       }
 
       return this.db;
-    } catch (error) {
-      console.error(error);
+    } catch {
       throw new AppError();
     }
   }
@@ -34,8 +33,7 @@ export class Connection implements ConnectionInterface {
     try {
       await this.client?.close();
       this.db = null;
-    } catch (error) {
-      console.error(error);
+    } catch {
       throw new AppError();
     }
   }
