@@ -67,21 +67,22 @@ export class MockFlightsService implements FlightsServiceInterface {
         throw new Error('Internal failure');
       }
 
+      const key = toKey(flightId, userId);
       const objectId = new ObjectId(flightId);
 
-      if (!this.collection.has(toKey(flightId, userId))) {
+      if (!this.collection.has(key)) {
         throw new NotFoundError();
       }
 
-      const original = this.collection.get(toKey(flightId, userId));
-      this.collection.set(toKey(flightId, userId), {
+      const original = this.collection.get(key);
+      this.collection.set(key, {
         ...original,
         ...request,
         userId,
         _id: objectId,
       });
 
-      const result = this.collection.get(toKey(flightId, userId));
+      const result = this.collection.get(key);
       if (!result) {
         throw new NotFoundError();
       }
@@ -101,11 +102,13 @@ export class MockFlightsService implements FlightsServiceInterface {
         throw new Error('Internal failure');
       }
 
-      if (!this.collection.has(toKey(flightId, userId))) {
+      const key = toKey(flightId, userId);
+
+      if (!this.collection.has(key)) {
         throw new NotFoundError();
       }
 
-      this.collection.delete(toKey(flightId, userId));
+      this.collection.delete(key);
 
       return Promise.resolve();
     } catch (error) {

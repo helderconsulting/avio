@@ -39,7 +39,6 @@ process.on('unhandledRejection', (err) => {
   pinoLogger.fatal({ err }, 'A unhandled rejection occured');
   server.close();
 });
-
 server.on('close', () => {
   pinoLogger.info('closing server');
   connection.disconnect().catch(pinoLogger.error);
