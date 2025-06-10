@@ -10,11 +10,13 @@ import type { AppContext } from './context.js';
 import { flights } from './flights/index.js';
 import { handleError } from './lib/error.js';
 import { logger } from './lib/logger.js';
+import { processEnv } from './schema.js';
 
 export const createRouter = (
   appState: MiddlewareHandler<AppContext>,
   authState: MiddlewareHandler<AuthContext>
 ) => {
+  processEnv.parse(process.env);
   const router = new Hono<AppContext>();
 
   router.use(cors());
